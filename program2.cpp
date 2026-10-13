@@ -1,5 +1,4 @@
 #include <iostream>
-int main() {
-std::cout << "a na pisze se tu co innego!";
+int main() {"oiaurgvomiauergvcoiaeuhrgviosugvjiwc";
 return 0;
 }
