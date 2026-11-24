@@ -10,8 +10,8 @@ class Smok
     sf::Clock zegarKlatek;
     const int szerokoscKlatki = 192;
     const int wysokoscKlatki = 192;
-    int kierunek;
-    int klatka;
+    int kierunek = 3;
+    int klatka = 0;
 
     void ustawKlatke()
     {
@@ -46,7 +46,7 @@ public:
 
         sprite.setOrigin({szerokoscKlatki / 2.f, wysokoscKlatki / 2.f});
         sprite.setScale({0.5f, 0.5f});
-        sprite.setPosition({1000.f, 450.f});
+        sprite.setPosition({600.f, 450.f});
         ustawKlatke();
     }
 
@@ -63,13 +63,48 @@ public:
 
         sprite.move({dx, dy});
 
-        if (zegarKlatek.getElapsedTime().asSeconds() >= 0.12f)
+        if (zegarKlatek.getElapsedTime().asSeconds() >= 0.24f)
         {
-            klatka = (klatka + 1) % 3;
+            if (kierunek == 4 || kierunek == 1)
+                klatka = (klatka + 2) % 3;
+            else
+                klatka = (klatka + 1) % 3;
+
             zegarKlatek.restart();
         }
 
         ustawKlatke();
+    }
+
+    void cofnijRuch(float dx, float dy)
+    {
+        sprite.move({-dx, -dy});
+    }
+
+    void ograniczDoScian(float szerokosc, float wysokosc)
+    {
+        sf::FloatRect granice = sprite.getGlobalBounds();
+        sf::Vector2f pozycja = sprite.getPosition();
+
+        if (granice.position.x < 0.f)
+            pozycja.x -= granice.position.x;
+        else if (granice.position.x + granice.size.x > szerokosc)
+            pozycja.x -= granice.position.x + granice.size.x - szerokosc;
+
+        if (granice.position.y < 0.f)
+            pozycja.y -= granice.position.y;
+        else if (granice.position.y + granice.size.y > wysokosc)
+            pozycja.y -= granice.position.y + granice.size.y - wysokosc;
+
+        sprite.setPosition(pozycja);
+    }
+
+    sf::FloatRect getBounds() const
+    {
+        sf::FloatRect granice = sprite.getGlobalBounds();
+        granice.position.y += 15.f;
+        granice.size.y -= 15.f;
+        return granice;
     }
 
     void draw(sf::RenderTarget &target)

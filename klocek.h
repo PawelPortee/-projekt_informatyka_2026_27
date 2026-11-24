@@ -1,4 +1,4 @@
-
+#pragma once
 #include <SFML/Graphics.hpp>
 
 class Klocek
@@ -24,4 +24,10 @@ public:
     float getY() const { return y; }
     float getSzerokosc() const { return szerokosc; }
     float getWysokosc() const { return wysokosc; }
+    sf::FloatRect getBounds() const { return shape.getGlobalBounds(); }
+
+    void draw(sf::RenderTarget &target) const
+    {
+        target.draw(shape);
+    }
 };

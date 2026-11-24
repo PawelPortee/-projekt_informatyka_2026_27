@@ -7,13 +7,20 @@
 
 int main()
 {
+    int szerokosc = 1200;
+    int wysokosc = 900;
     std::setlocale(LC_ALL, "pl_PL.UTF-8");
     int wybor = 0;
     bool czygra = false;
-    sf::RenderWindow window(sf::VideoMode({1200, 900}), "Menu");
+    sf::RenderWindow window(sf::VideoMode({szerokosc, wysokosc}), "Menu");
     sf::Clock zegar;
     sf::Font font;
     Smok smok("Smuk.png");
+    std::vector<Klocek> klocki = {
+        Klocek(300.f, 250.f, 220.f, 80.f),
+        Klocek(900.f, 250.f, 100.f, 220.f),
+        Klocek(350.f, 700.f, 280.f, 100.f),
+        Klocek(900.f, 680.f, 180.f, 140.f)};
     window.setFramerateLimit(60);
     if (font.openFromFile("arial.ttf") == true)
     {
@@ -86,20 +93,52 @@ int main()
         }
         else
         {
-            const float predkoscSmoka = 4.f;
+            for (const Klocek &klocek : klocki)
+                klocek.draw(window);
+
+            const float predkoscSmoka = 2.f;
+            float dx = 0.f;
+            float dy = 0.f;
+
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) ||
                 sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-                smok.ruch(-predkoscSmoka, 0.f);
+                dx -= predkoscSmoka;
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) ||
                 sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-                smok.ruch(predkoscSmoka, 0.f);
+                dx += predkoscSmoka;
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) ||
                 sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-                smok.ruch(0.f, -predkoscSmoka);
+                dy -= predkoscSmoka;
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) ||
                 sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-                smok.ruch(0.f, predkoscSmoka);
+                dy += predkoscSmoka;
 
+            if (dx != 0.f && dy != 0.f)
+            {
+                dx *= 0.7071f;
+                dy *= 0.7071f;
+            }
+
+            if (dx != 0.f || dy != 0.f)
+            {
+                smok.ruch(dx, dy);
+
+                sf::FloatRect graniceSmoka = smok.getBounds();
+                for (const Klocek &klocek : klocki)
+                {
+                    sf::FloatRect graniceKlocka = klocek.getBounds();
+                    if (graniceSmoka.position.x < graniceKlocka.position.x + graniceKlocka.size.x &&
+                        graniceSmoka.position.x + graniceSmoka.size.x > graniceKlocka.position.x &&
+                        graniceSmoka.position.y < graniceKlocka.position.y + graniceKlocka.size.y &&
+                        graniceSmoka.position.y + graniceSmoka.size.y > graniceKlocka.position.y)
+                    {
+                        smok.cofnijRuch(dx, dy);
+                        break;
+                    }
+                }
+            }
+
+            smok.ograniczDoScian((szerokosc), (wysokosc));
             smok.draw(window);
             window.display();
         }
